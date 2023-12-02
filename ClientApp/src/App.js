@@ -12,7 +12,7 @@ function App() {
           <Navbar></Navbar>
           <Routes>
             <Route path="/" element={<Todo />} />
-            <Route path="/login" />
+            <Route path="/profile" element={<Todo />} />
           </Routes>
         </Router>
       </header>

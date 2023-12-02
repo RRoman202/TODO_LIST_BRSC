@@ -72,6 +72,14 @@ const Todo = () => {
   const handleCancel = () => {
     setIsCreateModalOpen(false);
   };
+  const deleteTask = (id) => {
+    const options = {
+      method: "DELETE",
+      headers: new Headers(),
+    };
+    fetch(url + `/${id}`, options);
+    setTask(allTask.filter((x) => x.id !== id));
+  };
 
   useEffect(() => {
     getTasks();
@@ -139,7 +147,11 @@ const Todo = () => {
             }}
           >
             {allTask.map((x) => (
-              <TaskItem name={x.name} description={x.description}></TaskItem>
+              <TaskItem
+                name={x.name}
+                description={x.description}
+                deleteAction={() => deleteTask(x.id)}
+              ></TaskItem>
             ))}
           </div>
         </Content>
@@ -158,6 +170,8 @@ const TaskItem = ({
   term,
   priority,
   isdone,
+  deleteAction,
+  updateAction,
 }) => {
   return (
     <Card
@@ -167,6 +181,13 @@ const TaskItem = ({
       }}
       actions={[
         <Button type="primary" shape="circle" icon={<EditOutlined />}></Button>,
+        <Button
+          type="primary"
+          shape="circle"
+          icon={<DeleteOutlined />}
+          onClick={() => deleteAction(id)}
+          danger
+        ></Button>,
       ]}
       extra={<Checkbox></Checkbox>}
     >
