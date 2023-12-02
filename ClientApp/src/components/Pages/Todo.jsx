@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import Moment from "moment";
+import "moment/locale/ru";
 import {
   Layout,
   Card,
@@ -9,9 +11,11 @@ import {
   Form,
   Input,
   DatePicker,
+  Tooltip,
 } from "antd";
 import "./Todo.css";
 import NavBar from "../NavBar/Navbar";
+import Meta from "antd/es/card/Meta";
 const { Header, Content, Footer } = Layout;
 const { TextArea } = Input;
 
@@ -151,6 +155,7 @@ const Todo = () => {
                 name={x.name}
                 description={x.description}
                 deleteAction={() => deleteTask(x.id)}
+                term={x.term}
               ></TaskItem>
             ))}
           </div>
@@ -180,18 +185,31 @@ const TaskItem = ({
         margin: 20,
       }}
       actions={[
-        <Button type="primary" shape="circle" icon={<EditOutlined />}></Button>,
-        <Button
-          type="primary"
-          shape="circle"
-          icon={<DeleteOutlined />}
-          onClick={() => deleteAction(id)}
-          danger
-        ></Button>,
+        <Tooltip title="Редактировать">
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<EditOutlined />}
+          ></Button>
+        </Tooltip>,
+        <Tooltip title="Удалить">
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<DeleteOutlined />}
+            onClick={() => deleteAction(id)}
+            danger
+          ></Button>
+          ,
+        </Tooltip>,
       ]}
       extra={<Checkbox></Checkbox>}
     >
       <p>{description}</p>
+      <Meta
+        style={{ color: "white" }}
+        description={`Срок выполнения: до ${Moment(term).format("d MMMM Y")}`}
+      ></Meta>
     </Card>
   );
 };
