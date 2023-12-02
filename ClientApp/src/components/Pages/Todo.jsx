@@ -10,6 +10,7 @@ import {
   Input,
   DatePicker,
 } from "antd";
+import "./Todo.css";
 import NavBar from "../NavBar/Navbar";
 const { Header, Content, Footer } = Layout;
 const { TextArea } = Input;
@@ -63,8 +64,9 @@ const Todo = () => {
       const post = await result.json();
       allTask.push(post);
       setTask(allTask);
+      setIsCreateModalOpen(false);
     }
-    setIsCreateModalOpen(false);
+
     return [];
   };
   const handleCancel = () => {
@@ -78,7 +80,10 @@ const Todo = () => {
   return (
     <Layout hasSider>
       <NavBar></NavBar>
-      <Layout className="site-layout" style={{ marginLeft: 200 }}>
+      <Layout
+        className="site-layout"
+        style={{ marginLeft: 200, height: "100vh" }}
+      >
         <Header
           style={{
             position: "sticky",
@@ -98,6 +103,7 @@ const Todo = () => {
             alignItems: "center",
           }}
           onClick={showCreateModal}
+          type="primary"
         >
           Создать задачу
         </Button>
@@ -125,7 +131,7 @@ const Todo = () => {
             <Input id="priority" placeholder="Приоритет"></Input>
           </div>
         </Modal>
-        <Content style={{ margin: "24px 16px 0", overflow: "initial" }}>
+        <Content style={{ margin: "24px 16px 0", overflow: "auto" }}>
           <div
             style={{
               padding: 24,
