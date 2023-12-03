@@ -84,6 +84,9 @@ const Todo = () => {
     fetch(url + `/${id}`, options);
     setTask(allTask.filter((x) => x.id !== id));
   };
+  const onFinishFailed = (errorInfo) => {
+    console.log("Failed:", errorInfo);
+  };
 
   useEffect(() => {
     getTasks();
@@ -106,7 +109,14 @@ const Todo = () => {
             alignItems: "center",
             padding: 0,
           }}
-        />
+        >
+          <Button
+            type="primary"
+            style={{ right: 0, position: "absolute", marginRight: "10px" }}
+          >
+            Войти
+          </Button>
+        </Header>
         <Button
           style={{
             position: "sticky",
@@ -126,6 +136,7 @@ const Todo = () => {
           onCancel={handleCancel}
           okText="Создать"
           cancelText="Отмена"
+          footer={null}
         >
           <div
             style={{
@@ -134,13 +145,80 @@ const Todo = () => {
               justifyContent: "space-around",
             }}
           >
-            <Input id="name" placeholder="Название"></Input>
-            <br></br>
-            <TextArea id="description" rows={4} placeholder="Описание" />
-            <br></br>
-            <DatePicker id="term" placeholder="Выберите срок"></DatePicker>
-            <br></br>
-            <Input id="priority" placeholder="Приоритет"></Input>
+            <Form
+              onFinish={addTask}
+              labelCol={{
+                span: 8,
+              }}
+              wrapperCol={{
+                span: 16,
+              }}
+              style={{
+                maxWidth: 600,
+              }}
+              initialValues={{
+                remember: true,
+              }}
+              autoComplete="off"
+            >
+              <Form.Item
+                label="Название"
+                name="name"
+                rules={[
+                  {
+                    required: true,
+                    message: "Введите название задачи",
+                  },
+                ]}
+              >
+                <Input id="name"></Input>
+              </Form.Item>
+              <Form.Item
+                label="Описание"
+                rules={[
+                  {
+                    required: true,
+                    message: "Введите название задачи",
+                  },
+                ]}
+              >
+                <TextArea id="description" rows={4} placeholder="Описание" />
+              </Form.Item>
+              <Form.Item
+                label="Срок выполнения"
+                name="term"
+                rules={[
+                  {
+                    required: true,
+                    message: "Выберите срок выполнения",
+                  },
+                ]}
+              >
+                <DatePicker id="term" placeholder="Выберите срок"></DatePicker>
+              </Form.Item>
+              <Form.Item
+                label="Приоритет"
+                name="priority"
+                rules={[
+                  {
+                    required: true,
+                    message: "Введите приоритет задачи",
+                  },
+                ]}
+              >
+                <Input id="priority" placeholder="Приоритет"></Input>
+              </Form.Item>
+              <Form.Item
+                wrapperCol={{
+                  offset: 8,
+                  span: 16,
+                }}
+              >
+                <Button type="primary" htmlType="submit">
+                  Создать
+                </Button>
+              </Form.Item>
+            </Form>
           </div>
         </Modal>
         <Content style={{ margin: "24px 16px 0", overflow: "auto" }}>
@@ -180,7 +258,9 @@ const TaskItem = ({
 }) => {
   return (
     <Card
-      title={<h4>{name}</h4>}
+      title={
+        <h4 style={{ wordBreak: "break-all", whiteSpace: "normal" }}>{name}</h4>
+      }
       style={{
         margin: 20,
       }}
@@ -200,15 +280,18 @@ const TaskItem = ({
             onClick={() => deleteAction(id)}
             danger
           ></Button>
-          ,
         </Tooltip>,
       ]}
       extra={<Checkbox></Checkbox>}
     >
-      <p>{description}</p>
+      <p style={{ wordBreak: "break-all", whiteSpace: "normal" }}>
+        {description}
+      </p>
       <Meta
         style={{ color: "white" }}
-        description={`Срок выполнения: до ${Moment(term).format("d MMMM Y")}`}
+        description={`Срок выполнения: до ${Moment(new Date(term)).format(
+          "D MMMM Y"
+        )}`}
       ></Meta>
     </Card>
   );
