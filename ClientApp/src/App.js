@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/NavBar/Navbar";
-import Todo from "./components/Pages/Todo";
+import Todo from "./components/Pages/Todo/Todo";
 import "./App.css";
 
 function App() {

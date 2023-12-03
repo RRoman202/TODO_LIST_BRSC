@@ -1,0 +1,48 @@
+::-webkit-scrollbar {
+  width: 15px;
+  background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background-color: #111a2c;
+}
+.site-layout {
+  margin-left: 200px;
+  height: 100vh;
+}
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+.auth-button {
+  right: 0;
+  position: absolute;
+  margin-right: 10px;
+}
+.addtask-button {
+  position: sticky;
+  top: 65px;
+  z-index: 1;
+  align-items: center;
+}
+.content {
+  margin: 24px 16px 0;
+  overflow: auto;
+}
+.content div {
+  padding: 24;
+  text-align: center;
+}
+.title-task {
+  word-break: break-all;
+  white-space: normal;
+}
+.task-description {
+  word-break: break-all;
+  white-space: normal;
+}
