@@ -1,5 +1,5 @@
 import React from "react";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import Moment from "moment";
 import "moment/locale/ru";
 import dayjs from "dayjs";
@@ -7,7 +7,6 @@ import { Card, Checkbox, Button, Tooltip, Form, Input, DatePicker } from "antd";
 import "../Todo/static/css/Todo.css";
 import Meta from "antd/es/card/Meta";
 import UpdateTaskModal from "./Modals/UpdateTaskModal";
-import AddTaskModal from "./Modals/AddTaskModal";
 
 const { TextArea } = Input;
 const dateFormat = "YYYY/MM/DD";

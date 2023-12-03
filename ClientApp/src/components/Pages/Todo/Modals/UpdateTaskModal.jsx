@@ -1,40 +1,118 @@
-import React, { useState } from "react";
-import { Button, Form, Input, DatePicker, Modal, Tooltip } from "antd";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import React from "react";
+import { Button, Form, Input, DatePicker } from "antd";
+import dayjs from "dayjs";
+
 const { TextArea } = Input;
 
-const UpdateTaskModal = ({ ModalContent }) => {
-  const [showModal, setShowModal] = useState(false);
+const dateFormat = "YYYY/MM/DD";
 
-  const handleCancel = () => {
-    setShowModal(false);
-  };
-
-  const handeShowModal = () => {
-    setShowModal(true);
-  };
-
+const UpdateTaskModal = ({ updateTask, task }) => {
   return (
-    <div>
-      <Tooltip title="Редактировать">
-        <Button
-          type="primary"
-          shape="circle"
-          icon={<EditOutlined />}
-          onClick={handeShowModal}
-        ></Button>
-      </Tooltip>
-
-      <Modal
-        title="Редактирование задачи"
-        open={showModal}
-        onCancel={handleCancel}
-        okText="Применить"
-        cancelText="Отмена"
-        footer={null}
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-around",
+      }}
+    >
+      <Form
+        onFinish={updateTask}
+        labelCol={{
+          span: 8,
+        }}
+        wrapperCol={{
+          span: 16,
+        }}
+        style={{
+          maxWidth: 600,
+        }}
+        initialValues={{
+          remember: true,
+        }}
+        autoComplete="off"
       >
-        {ModalContent}
-      </Modal>
+        <Form.Item
+          label="Название"
+          name="uname"
+          initialValue={task.name}
+          rules={[
+            {
+              required: true,
+              message: "Введите название задачи",
+            },
+          ]}
+        >
+          <Input
+            id="uname"
+            placeholder="Название"
+            onChange={(e) => (task.name = e.target.value)}
+          ></Input>
+        </Form.Item>
+        <Form.Item
+          label="Описание"
+          rules={[
+            {
+              required: true,
+              message: "Введите название задачи",
+            },
+          ]}
+          initialValue={task.description}
+        >
+          <TextArea
+            id="udescription"
+            rows={4}
+            placeholder="Описание"
+            defaultValue={task.description}
+            onChange={(e) => (task.description = e.target.value)}
+          />
+        </Form.Item>
+        <Form.Item
+          label="Срок выполнения"
+          name="uterm"
+          initialValue={dayjs(task.term, dateFormat)}
+          rules={[
+            {
+              required: true,
+              message: "Выберите срок выполнения",
+            },
+          ]}
+        >
+          <DatePicker
+            id="uterm"
+            placeholder="Выберите срок"
+            onChange={(e) => {
+              task.term = new Date(e);
+            }}
+          ></DatePicker>
+        </Form.Item>
+        <Form.Item
+          label="Приоритет"
+          name="upriority"
+          rules={[
+            {
+              required: true,
+              message: "Введите приоритет задачи",
+            },
+          ]}
+          initialValue={task.priority}
+        >
+          <Input
+            id="upriority"
+            placeholder="Приоритет"
+            onChange={(e) => (task.priority = e.target.value)}
+          ></Input>
+        </Form.Item>
+        <Form.Item
+          wrapperCol={{
+            offset: 8,
+            span: 16,
+          }}
+        >
+          <Button type="primary" htmlType="submit">
+            Изменить
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };
