@@ -46,3 +46,12 @@
   word-break: break-all;
   white-space: normal;
 }
+.segment {
+  position: sticky;
+  top: 110px;
+  z-index: 1;
+  align-items: center;
+  background-color: #1890ff;
+  margin: 0 auto;
+  color: white;
+}

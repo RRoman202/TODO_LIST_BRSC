@@ -1,5 +1,6 @@
 import React from "react";
-import { Button, Form, Input, DatePicker } from "antd";
+import { Button, Form, Input, DatePicker, Cascader } from "antd";
+import { optionsPriority } from "../Todo";
 const { TextArea } = Input;
 
 const AddTaskModal = ({ addTask }) => {
@@ -73,8 +74,16 @@ const AddTaskModal = ({ addTask }) => {
               },
             ]}
           >
-            <Input id="priority" placeholder="Приоритет"></Input>
+            <Cascader
+              id="priority2"
+              placeholder="Приоритет"
+              onChange={(e) => {
+                document.querySelector("#priority").value = e;
+              }}
+              options={optionsPriority}
+            ></Cascader>
           </Form.Item>
+
           <Form.Item
             wrapperCol={{
               offset: 8,
@@ -86,6 +95,7 @@ const AddTaskModal = ({ addTask }) => {
             </Button>
           </Form.Item>
         </Form>
+        <input id="priority" style={{ visibility: "collapse" }}></input>
       </div>
     </>
   );

@@ -1,5 +1,6 @@
 import React from "react";
-import { Button, Form, Input, DatePicker } from "antd";
+import { Button, Form, Input, DatePicker, Cascader } from "antd";
+import { optionsPriority } from "../Todo";
 import dayjs from "dayjs";
 
 const { TextArea } = Input;
@@ -96,11 +97,15 @@ const UpdateTaskModal = ({ updateTask, task }) => {
           ]}
           initialValue={task.priority}
         >
-          <Input
+          <Cascader
             id="upriority"
             placeholder="Приоритет"
-            onChange={(e) => (task.priority = e.target.value)}
-          ></Input>
+            onChange={(e) => {
+              document.querySelector("#priority").value = e;
+              task.priority = document.querySelector("#priority").value;
+            }}
+            options={optionsPriority}
+          ></Cascader>
         </Form.Item>
         <Form.Item
           wrapperCol={{
@@ -113,6 +118,7 @@ const UpdateTaskModal = ({ updateTask, task }) => {
           </Button>
         </Form.Item>
       </Form>
+      <input id="priority" style={{ visibility: "collapse" }}></input>
     </div>
   );
 };

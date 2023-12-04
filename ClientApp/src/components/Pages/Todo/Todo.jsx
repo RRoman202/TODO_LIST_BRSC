@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "moment/locale/ru";
-import { Layout, Button, Modal } from "antd";
+import { Layout, Button, Modal, Progress, Space, Segmented } from "antd";
 import "../Todo/static/css/Todo.css";
 import NavBar from "../../NavBar/Navbar";
 import AddTaskModal from "./Modals/AddTaskModal";
@@ -13,6 +13,21 @@ import "../Todo/static/css/Todo.css";
 import Meta from "antd/es/card/Meta";
 
 const { Header, Content } = Layout;
+
+export const optionsPriority = [
+  {
+    value: "Высокий",
+    label: "Высокий",
+  },
+  {
+    value: "Средний",
+    label: "Средний",
+  },
+  {
+    value: "Низкий",
+    label: "Низкий",
+  },
+];
 
 const Todo = () => {
   const [allTask, setTask] = useState([]);
@@ -30,7 +45,8 @@ const Todo = () => {
 
     if (result.ok) {
       const posts = await result.json();
-      setTask(posts);
+      setTask(posts.sort((a, b) => (a.id > b.id ? 1 : -1)));
+      console.log(allTask);
       return posts;
     }
     return [];
@@ -64,6 +80,7 @@ const Todo = () => {
       const post = await result.json();
       allTask.push(post);
       setTask(allTask);
+      console.log(allTask);
       setIsCreateModalOpen(false);
     }
 
@@ -82,7 +99,6 @@ const Todo = () => {
   };
 
   const updateTask = async (id, oldTask) => {
-    console.log(oldTask);
     const headers = new Headers();
     headers.set("Content-Type", "application/json");
 
@@ -94,7 +110,7 @@ const Todo = () => {
     await fetch(url + `/${id}`, options);
     const updatedTask = allTask.findIndex((x) => x.id === oldTask.id);
     allTask[updatedTask] = oldTask;
-    setTask(allTask);
+    setTask(allTask.slice());
   };
 
   useEffect(() => {
@@ -118,6 +134,10 @@ const Todo = () => {
         >
           Создать задачу
         </Button>
+        <Segmented
+          className="segment"
+          options={["Все задачи", "Не выполненные", "Выполненные"]}
+        />
         <Modal
           title="Создание задачи"
           open={isCreateModalOpen}
@@ -159,11 +179,28 @@ const TaskItem = ({ task, deleteAction, updateAction }) => {
     updateAction(taskid, task);
     setIsUpdateModalOpen(false);
   };
+  const colorTask = getColorTask(task.priority);
   return (
     <Card
-      title={<h4 className="title-task">{task.name}</h4>}
+      title={
+        <Card
+          style={{
+            backgroundColor: colorTask[0],
+            margin: "10px",
+            borderColor: colorTask[2],
+            borderWidth: "2px",
+          }}
+        >
+          <h4 className="title-task" style={{ fontSize: "30px" }}>
+            {task.name}
+          </h4>
+        </Card>
+      }
       style={{
         margin: 20,
+        backgroundColor: colorTask[1],
+        borderColor: colorTask[2],
+        borderWidth: "3px",
       }}
       actions={[
         <div>
@@ -201,14 +238,79 @@ const TaskItem = ({ task, deleteAction, updateAction }) => {
           ></Button>
         </Tooltip>,
       ]}
-      extra={<Checkbox></Checkbox>}
+      extra={
+        <Checkbox
+          onChange={(e) => {
+            task.isDone = e.target.checked;
+
+            updateAction(task.id, task);
+          }}
+          checked={task.isDone}
+        ></Checkbox>
+      }
     >
-      <p className="task-description">{task.description}</p>
-      <Meta
-        description={`Срок выполнения: до ${Moment(new Date(task.term)).format(
-          "D MMMM Y"
-        )}`}
-      ></Meta>
+      <Card
+        className="task-description"
+        style={{
+          fontSize: "20px",
+          marginBottom: "20px",
+          backgroundColor: "white",
+        }}
+      >
+        {task.description}
+      </Card>
+      <Space
+        direction="vertical"
+        style={{
+          backgroundColor: "white",
+          borderRadius: "10px",
+          padding: "10px",
+        }}
+      >
+        <Space wrap>
+          <Meta
+            description={`Срок выполнения: до ${Moment(
+              new Date(task.term)
+            ).format("D MMMM Y")}`}
+          ></Meta>
+          <Progress
+            type="circle"
+            percent={Math.ceil(calculatePercentage(new Date(task.term)))}
+            size={30}
+          />
+        </Space>
+        <Card
+          title="Приоритет"
+          size="small"
+          style={{ backgroundColor: colorTask[0] }}
+        >
+          {task.priority}
+        </Card>
+      </Space>
     </Card>
   );
 };
+
+function getColorTask(prior) {
+  if (prior === "Высокий") {
+    return ["#ff4d4f", "#ffccc7", "#ffa39e"];
+  }
+  if (prior === "Средний") {
+    return ["#ffa940", "#ffe7ba", "#ffd591"];
+  }
+  if (prior === "Низкий") {
+    return ["#bae637", "#f4ffb8", "#eaff8f"];
+  }
+}
+
+function calculatePercentage(endDate) {
+  const today = new Date();
+
+  if (endDate < today) {
+    return 100;
+  }
+
+  const totalDays = (endDate - today) / (1000 * 60 * 60 * 24) + 1;
+
+  return 100 / totalDays;
+}
