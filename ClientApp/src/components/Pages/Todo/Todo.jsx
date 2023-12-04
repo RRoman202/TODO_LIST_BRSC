@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from "react";
 import "moment/locale/ru";
-import { Layout, Button, Modal, Progress, Space, Segmented } from "antd";
+import {
+  Layout,
+  Button,
+  Modal,
+  Progress,
+  Space,
+  Segmented,
+  Collapse,
+  Input,
+  Cascader,
+} from "antd";
 import "../Todo/static/css/Todo.css";
 import NavBar from "../../NavBar/Navbar";
 import AddTaskModal from "./Modals/AddTaskModal";
 import UpdateTaskModal from "./Modals/UpdateTaskModal";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import Moment from "moment";
 import "moment/locale/ru";
-import { Card, Checkbox, Tooltip } from "antd";
+import { Card, Checkbox, Tooltip, FloatButton } from "antd";
 import "../Todo/static/css/Todo.css";
 import Meta from "antd/es/card/Meta";
 
 const { Header, Content } = Layout;
+const { Search } = Input;
 
 export const optionsPriority = [
   {
@@ -126,6 +137,14 @@ const Todo = () => {
             Войти
           </Button>
         </Header>
+        <Tooltip title="Создать задачу">
+          <FloatButton
+            style={{ right: "75px" }}
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={showCreateModal}
+          ></FloatButton>
+        </Tooltip>
 
         <Button
           className="addtask-button"
@@ -134,10 +153,19 @@ const Todo = () => {
         >
           Создать задачу
         </Button>
-        <Segmented
-          className="segment"
-          options={["Все задачи", "Не выполненные", "Выполненные"]}
-        />
+        <div className="div-options">
+          <Search
+            placeholder="Поиск"
+            style={{ width: "200px" }}
+            enterButton
+          ></Search>
+          <Segmented
+            className="segment"
+            options={["Все задачи", "Не выполненные", "Выполненные"]}
+          />
+          <Cascader placeholder="Фильтрация"></Cascader>
+        </div>
+
         <Modal
           title="Создание задачи"
           open={isCreateModalOpen}
@@ -180,6 +208,60 @@ const TaskItem = ({ task, deleteAction, updateAction }) => {
     setIsUpdateModalOpen(false);
   };
   const colorTask = getColorTask(task.priority);
+
+  const item = [
+    {
+      label: "Подробнее",
+      children: (
+        <div style={{ backgroundColor: colorTask[1], padding: "10px" }}>
+          <Card
+            className="task-description"
+            style={{
+              fontSize: "20px",
+              marginBottom: "20px",
+              marginTop: "20px",
+              backgroundColor: "white",
+            }}
+          >
+            {task.description}
+          </Card>
+          <Space
+            direction="vertical"
+            style={{
+              backgroundColor: "white",
+              borderRadius: "10px",
+              padding: "10px",
+            }}
+          >
+            <Space wrap>
+              <Meta
+                description={`Срок выполнения: до ${Moment(
+                  new Date(task.term)
+                ).format("D MMMM Y")}`}
+              ></Meta>
+              <Progress
+                type="circle"
+                percent={Math.ceil(calculatePercentage(new Date(task.term)))}
+                size={30}
+              />
+            </Space>
+            <Card
+              title="Приоритет"
+              size="small"
+              style={{ backgroundColor: colorTask[0] }}
+            >
+              {task.priority}
+            </Card>
+          </Space>
+        </div>
+      ),
+    },
+  ];
+
+  const [checked, setChecked] = useState(task.isDone);
+
+  const labelCheckBox = checked ? "Выполнено" : "В работе";
+
   return (
     <Card
       title={
@@ -187,6 +269,7 @@ const TaskItem = ({ task, deleteAction, updateAction }) => {
           style={{
             backgroundColor: colorTask[0],
             margin: "10px",
+            marginRight: "10px",
             borderColor: colorTask[2],
             borderWidth: "2px",
           }}
@@ -242,64 +325,35 @@ const TaskItem = ({ task, deleteAction, updateAction }) => {
         <Checkbox
           onChange={(e) => {
             task.isDone = e.target.checked;
-
+            setChecked(task.isDone);
             updateAction(task.id, task);
           }}
           checked={task.isDone}
-        ></Checkbox>
+        >
+          {labelCheckBox}
+        </Checkbox>
       }
     >
-      <Card
-        className="task-description"
-        style={{
-          fontSize: "20px",
-          marginBottom: "20px",
-          backgroundColor: "white",
-        }}
-      >
-        {task.description}
-      </Card>
-      <Space
-        direction="vertical"
+      <Collapse
+        items={item}
         style={{
           backgroundColor: "white",
-          borderRadius: "10px",
-          padding: "10px",
         }}
-      >
-        <Space wrap>
-          <Meta
-            description={`Срок выполнения: до ${Moment(
-              new Date(task.term)
-            ).format("D MMMM Y")}`}
-          ></Meta>
-          <Progress
-            type="circle"
-            percent={Math.ceil(calculatePercentage(new Date(task.term)))}
-            size={30}
-          />
-        </Space>
-        <Card
-          title="Приоритет"
-          size="small"
-          style={{ backgroundColor: colorTask[0] }}
-        >
-          {task.priority}
-        </Card>
-      </Space>
+        type="primary"
+      ></Collapse>
     </Card>
   );
 };
 
 function getColorTask(prior) {
   if (prior === "Высокий") {
-    return ["#ff4d4f", "#ffccc7", "#ffa39e"];
+    return ["#ff4d4f", "#ffccc7", "#f5222d"];
   }
   if (prior === "Средний") {
-    return ["#ffa940", "#ffe7ba", "#ffd591"];
+    return ["#ffa940", "#ffe7ba", "#fa8c16"];
   }
   if (prior === "Низкий") {
-    return ["#bae637", "#f4ffb8", "#eaff8f"];
+    return ["#bae637", "#f4ffb8", "#a0d911"];
   }
 }
 

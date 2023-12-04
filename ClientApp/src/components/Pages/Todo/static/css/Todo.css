@@ -47,11 +47,14 @@
   white-space: normal;
 }
 .segment {
+  align-items: center;
+  background-color: #1890ff;
+  color: white;
+}
+.div-options {
   position: sticky;
   top: 110px;
   z-index: 1;
-  align-items: center;
-  background-color: #1890ff;
-  margin: 0 auto;
-  color: white;
+  display: flex;
+  justify-content: space-around;
 }
