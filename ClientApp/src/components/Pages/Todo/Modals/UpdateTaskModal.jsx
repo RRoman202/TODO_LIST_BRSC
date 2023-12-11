@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { EditOutlined } from "@ant-design/icons";
 import {
   Button,
@@ -16,13 +16,30 @@ const { TextArea } = Input;
 
 const dateFormat = "YYYY/MM/DD";
 
-const UpdateTaskModal = ({ updateTask, task }) => {
+const UpdateTaskModal = ({ updateTask, task, taskCopy }) => {
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+
+  const [form] = Form.useForm();
+
+  const resetForm = () => {
+    form.setFieldsValue({
+      uname: taskCopy.name,
+      udescription: taskCopy.description,
+      uterm: dayjs(taskCopy.term, dateFormat),
+      upriority: taskCopy.priority,
+    });
+    task.name = taskCopy.name;
+    task.description = taskCopy.description;
+    task.term = taskCopy.term;
+    task.priority = taskCopy.priority;
+  };
 
   const showUpdateModal = () => {
     setIsUpdateModalOpen(true);
+    resetForm();
   };
   const handleUpdateCancel = () => {
+    resetForm();
     setIsUpdateModalOpen(false);
   };
 
@@ -52,9 +69,10 @@ const UpdateTaskModal = ({ updateTask, task }) => {
         footer={null}
       >
         <Form
+          form={form}
           onFinish={() => {
             setIsUpdateModalOpen(false);
-            updateTask();
+            updateTask(task.id, task);
           }}
           labelCol={{
             span: 8,
@@ -88,13 +106,8 @@ const UpdateTaskModal = ({ updateTask, task }) => {
             ></Input>
           </Form.Item>
           <Form.Item
+            name="udescription"
             label="Описание"
-            rules={[
-              {
-                required: true,
-                message: "Введите название задачи",
-              },
-            ]}
             initialValue={task.description}
           >
             <TextArea

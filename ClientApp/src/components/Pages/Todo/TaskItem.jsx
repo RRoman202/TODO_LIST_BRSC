@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DeleteOutlined } from "@ant-design/icons";
 import Moment from "moment";
 import "moment/locale/ru";
@@ -8,11 +8,15 @@ import "../Todo/static/css/Todo.css";
 import Meta from "antd/es/card/Meta";
 import UpdateTaskModal from "./Modals/UpdateTaskModal";
 import { getColorTask } from "./Helpers/OptionsPriority";
+import DeleteModal from "./Modals/DeleteTaskModal";
+import { getTasks } from "./FetchData/GetTasks";
 
 const TaskItem = ({ task, deleteAction, updateAction }) => {
   const colorTask = getColorTask(task.priority);
 
   const [checked, setChecked] = useState(task.isDone);
+
+  const taskCopy = { ...task };
 
   const labelCheckBox = checked ? "Выполнено" : "В работе";
 
@@ -65,20 +69,15 @@ const TaskItem = ({ task, deleteAction, updateAction }) => {
           >
             <Space wrap>
               <UpdateTaskModal
-                updateTask={updateAction}
+                updateTask={() => updateAction(task.id, task)}
                 task={task}
+                taskCopy={taskCopy}
               ></UpdateTaskModal>
             </Space>
-            <Tooltip title="Удалить">
-              <Button
-                type="primary"
-                shape="circle"
-                icon={<DeleteOutlined />}
-                onClick={() => deleteAction(task.id)}
-                style={{ marginLeft: "10px" }}
-                danger
-              ></Button>
-            </Tooltip>
+            <DeleteModal
+              deleteTask={() => deleteAction(task.id)}
+              task={task}
+            ></DeleteModal>
           </Card>
         </Space>
       </Flex>

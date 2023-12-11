@@ -68,12 +68,9 @@ const Todo = () => {
       method: "DELETE",
       headers: headers,
     };
-    const result = fetch(url + `/${id}`, options);
-
+    await fetch(url + `/${id}`, options);
+    console.log(id);
     setTask(allTask.filter((x) => x.id !== id));
-    if (result.ok) {
-      await getTasks();
-    }
   };
 
   const updateTask = async (id, oldTask) => {
@@ -87,7 +84,9 @@ const Todo = () => {
       body: JSON.stringify(oldTask),
     };
     await fetch(url + `/${id}`, options);
+    console.log(id);
     const index = allTask.findIndex((x) => x.id === id);
+    console.log(index);
     allTask[index] = oldTask;
     setTask(allTask.slice());
   };
@@ -120,6 +119,7 @@ const Todo = () => {
                     task={x}
                     deleteAction={() => deleteTask(x.id)}
                     updateAction={() => updateTask(x.id, x)}
+                    setTask={setTask}
                   ></TaskItem>
                 ))}
               </div>
