@@ -4,10 +4,9 @@
 }
 ::-webkit-scrollbar-thumb {
   border-radius: 5px;
-  background-color: #111a2c;
+  background-color: #1890ff;
 }
 .site-layout {
-  margin-left: 200px;
   height: 100vh;
 }
 .header {
@@ -22,7 +21,7 @@
 .auth-button {
   right: 0;
   position: absolute;
-  margin-right: 10px;
+  margin-right: 50px;
 }
 .addtask-button {
   position: sticky;
@@ -57,4 +56,7 @@
   z-index: 1;
   display: flex;
   justify-content: space-around;
+}
+.empty {
+  margin: 0 auto;
 }

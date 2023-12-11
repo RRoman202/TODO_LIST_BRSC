@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TODO_LIST", "TODO_LIST.csproj", "{6A24A46C-D424-4191-9044-9BE333AE4CEC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TODO_LIST", "TODO_LIST.csproj", "{6A24A46C-D424-4191-9044-9BE333AE4CEC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

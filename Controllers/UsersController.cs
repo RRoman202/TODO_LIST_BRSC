@@ -1,10 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using TODO_LIST.DTO;
 using todolist_api.Data;
 using todolist_api.Data.Models;
 
@@ -16,30 +23,55 @@ namespace todolist_api.Controllers
     {
         private readonly DataContext _context;
 
-        public UsersController(DataContext context)
+        private readonly IConfiguration _configuration;
+
+        public UsersController(DataContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
 
-        // GET: api/User
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserModel>>> GetUsers()
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<ActionResult<UserModel>> Registration(UserModel userModel)
         {
-          if (_context.Users == null)
-          {
-              return NotFound();
-          }
-            return await _context.Users.ToListAsync();
+            userModel.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userModel.PasswordHash);
+            _context.Users.Add(userModel);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetUserModel", new { id = userModel.Id }, userModel);
         }
 
-        // GET: api/User/5
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<ActionResult<UserModel>> Login(UserDTO request)
+        {
+            var user = await (from u in _context.Users where u.Username == request.Username select u).FirstOrDefaultAsync();
+            if (user != null)
+            {
+                if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+                {
+                    return BadRequest("Неправильный пароль");
+                }
+            }
+            else
+            {
+                return BadRequest("Неправильный логин");
+            }
+
+            string token = CreateToken(user);
+
+            return Ok(token);
+        }
+
+        [Authorize]
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserModel>> GetUserModel(int id)
+        public async Task<ActionResult<UserModel>> GetUser(int id)
         {
-          if (_context.Users == null)
-          {
-              return NotFound();
-          }
+            if (_context.Tasks == null)
+            {
+                return NotFound();
+            }
             var userModel = await _context.Users.FindAsync(id);
 
             if (userModel == null)
@@ -50,76 +82,28 @@ namespace todolist_api.Controllers
             return userModel;
         }
 
-        // PUT: api/User/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserModel(int id, UserModel userModel)
+        private string CreateToken(UserModel user)
         {
-            if (id != userModel.Id)
+            List<Claim> claims = new List<Claim>
             {
-                return BadRequest();
-            }
+                new Claim("ID", user.Id.ToString())
+            };
+           
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings:Key").Value!));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            _context.Entry(userModel).State = EntityState.Modified;
+            var token = new JwtSecurityToken(
+                    issuer: _configuration.GetSection("JwtSettings:Issuer").Value,
+                    audience: _configuration.GetSection("JwtSettings:Audience").Value,
+                    claims: claims,
+                    expires: DateTime.Now.AddHours(1),
+                    signingCredentials: creds
+                );
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserModelExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
-            return NoContent();
-        }
+            return jwt;
 
-        // POST: api/User
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<UserModel>> PostUserModel(UserModel userModel)
-        {
-          if (_context.Users == null)
-          {
-              return Problem("Entity set 'DataContext.Users'  is null.");
-          }
-            userModel.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userModel.PasswordHash);
-            _context.Users.Add(userModel);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetUserModel", new { id = userModel.Id }, userModel);
-        }
-
-        // DELETE: api/User/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserModel(int id)
-        {
-            if (_context.Users == null)
-            {
-                return NotFound();
-            }
-            var userModel = await _context.Users.FindAsync(id);
-            if (userModel == null)
-            {
-                return NotFound();
-            }
-
-            _context.Users.Remove(userModel);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool UserModelExists(int id)
-        {
-            return (_context.Users?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }

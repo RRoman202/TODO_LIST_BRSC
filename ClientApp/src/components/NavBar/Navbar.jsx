@@ -1,43 +1,42 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import React, { useState } from "react";
-import { Button } from "antd";
+import React from "react";
+import { Button, Space, Avatar } from "antd";
 import "./Navbar.css";
-import { UserOutlined, FormOutlined, LogoutOutlined } from "@ant-design/icons";
-import { Layout, Menu, theme } from "antd";
-const { Header, Content, Footer, Sider } = Layout;
+import { UserOutlined } from "@ant-design/icons";
+import { Layout } from "antd";
+import AuthModal from "../Pages/Todo/Modals/AuthModal";
 
-const items = [
-  [UserOutlined, "Мой профиль", "/profile"],
-  [FormOutlined, "Мои задачи", "/"],
-].map((nav) => ({
-  key: nav[2],
-  icon: React.createElement(nav[0]),
-  label: `${nav[1]}`,
-}));
+const { Header } = Layout;
 
-export default function NavBar() {
-  const navigate = useNavigate();
+const NavBar = ({ setIsLoggedIn, isLoggedIn }) => {
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+  };
   return (
-    <Sider
-      style={{
-        overflow: "auto",
-        height: "100vh",
-        position: "fixed",
-        left: 0,
-        top: 0,
-        bottom: 0,
-      }}
-    >
+    <Header className="header">
       <p className="name">ToDoList</p>
-      <Menu
-        theme="dark"
-        mode="inline"
-        items={items}
-        onClick={({ key }) => {
-          navigate(key);
-        }}
-        defaultSelectedKeys={[window.location.pathname]}
-      />
-    </Sider>
+      {isLoggedIn ? (
+        <Space wrap className="auth-button">
+          <Avatar icon={<UserOutlined />}></Avatar>
+          <p
+            style={{
+              color: "white",
+              fontSize: "20px",
+              marginTop: "15px",
+              marginRight: "5px",
+            }}
+          >
+            {localStorage.getItem("user")}
+          </p>
+          <Button onClick={handleLogout} type="primary" danger>
+            Выход
+          </Button>
+        </Space>
+      ) : (
+        <AuthModal setIsLoggedIn={setIsLoggedIn}></AuthModal>
+      )}
+    </Header>
   );
-}
+};
+
+export default NavBar;

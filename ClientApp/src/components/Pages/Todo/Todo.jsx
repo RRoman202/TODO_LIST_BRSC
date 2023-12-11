@@ -1,66 +1,26 @@
 import React, { useState, useEffect } from "react";
 import "moment/locale/ru";
-import {
-  Layout,
-  Button,
-  Modal,
-  Progress,
-  Space,
-  Segmented,
-  Collapse,
-  Input,
-  Cascader,
-} from "antd";
+import { Layout, Empty } from "antd";
 import "../Todo/static/css/Todo.css";
 import NavBar from "../../NavBar/Navbar";
 import AddTaskModal from "./Modals/AddTaskModal";
-import UpdateTaskModal from "./Modals/UpdateTaskModal";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import Moment from "moment";
 import "moment/locale/ru";
-import { Card, Checkbox, Tooltip, FloatButton } from "antd";
 import "../Todo/static/css/Todo.css";
-import Meta from "antd/es/card/Meta";
+import { getTasks } from "./FetchData/GetTasks";
+import TaskItem from "./TaskItem";
 
-const { Header, Content } = Layout;
-const { Search } = Input;
-
-export const optionsPriority = [
-  {
-    value: "Высокий",
-    label: "Высокий",
-  },
-  {
-    value: "Средний",
-    label: "Средний",
-  },
-  {
-    value: "Низкий",
-    label: "Низкий",
-  },
-];
+const { Content } = Layout;
 
 const Todo = () => {
   const [allTask, setTask] = useState([]);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const showCreateModal = () => {
-    setIsCreateModalOpen(true);
-  };
   const url = `/api/tasks`;
-  const getTasks = async () => {
-    const options = {
-      method: "GET",
-    };
-    const result = await fetch(url, options);
 
-    if (result.ok) {
-      const posts = await result.json();
-      setTask(posts.sort((a, b) => (a.id > b.id ? 1 : -1)));
-      console.log(allTask);
-      return posts;
-    }
-    return [];
+  const getTasksAll = async () => {
+    const posts = await getTasks();
+    setTask(posts);
+    return posts;
   };
   const addTask = async () => {
     const nameTask = document.querySelector("#name").value;
@@ -69,7 +29,7 @@ const Todo = () => {
     const priorityTask = document.querySelector("#priority").value;
 
     const newTask = {
-      userid: 1,
+      userid: localStorage.getItem("userid"),
       name: nameTask,
       description: descriptionTask,
       term: new Date(termTask),
@@ -78,7 +38,9 @@ const Todo = () => {
     };
 
     const headers = new Headers();
+
     headers.set("Content-Type", "application/json");
+    headers.set("Authorization", "Bearer " + localStorage.getItem("token"));
 
     const options = {
       method: "POST",
@@ -91,19 +53,17 @@ const Todo = () => {
       const post = await result.json();
       allTask.push(post);
       setTask(allTask);
-      console.log(allTask);
-      setIsCreateModalOpen(false);
     }
 
     return [];
   };
-  const handleCancel = () => {
-    setIsCreateModalOpen(false);
-  };
   const deleteTask = (id) => {
+    const headers = new Headers();
+
+    headers.set("Authorization", "Bearer " + localStorage.getItem("token"));
     const options = {
       method: "DELETE",
-      headers: new Headers(),
+      headers: headers,
     };
     fetch(url + `/${id}`, options);
     setTask(allTask.filter((x) => x.id !== id));
@@ -112,6 +72,7 @@ const Todo = () => {
   const updateTask = async (id, oldTask) => {
     const headers = new Headers();
     headers.set("Content-Type", "application/json");
+    headers.set("Authorization", "Bearer " + localStorage.getItem("token"));
 
     const options = {
       method: "PUT",
@@ -125,246 +86,52 @@ const Todo = () => {
   };
 
   useEffect(() => {
-    getTasks();
-  }, []);
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsLoggedIn(true);
+    }
+    if (isLoggedIn) {
+      getTasksAll();
+    } else {
+      setTask([]);
+    }
+  }, [isLoggedIn]);
 
   return (
-    <Layout hasSider>
-      <NavBar></NavBar>
+    <Layout>
       <Layout className="site-layout">
-        <Header className="header">
-          <Button type="primary" className="auth-button">
-            Войти
-          </Button>
-        </Header>
-        <Tooltip title="Создать задачу">
-          <FloatButton
-            style={{ right: "75px" }}
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={showCreateModal}
-          ></FloatButton>
-        </Tooltip>
+        <NavBar setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn}></NavBar>
+        {isLoggedIn ? (
+          <>
+            <AddTaskModal addTask={addTask} setTask={setTask}></AddTaskModal>
 
-        <Button
-          className="addtask-button"
-          onClick={showCreateModal}
-          type="primary"
-        >
-          Создать задачу
-        </Button>
-        <div className="div-options">
-          <Search
-            placeholder="Поиск"
-            style={{ width: "200px" }}
-            enterButton
-          ></Search>
-          <Segmented
-            className="segment"
-            options={["Все задачи", "Не выполненные", "Выполненные"]}
-          />
-          <Cascader placeholder="Фильтрация"></Cascader>
-        </div>
-
-        <Modal
-          title="Создание задачи"
-          open={isCreateModalOpen}
-          onOk={addTask}
-          onCancel={handleCancel}
-          okText="Создать"
-          cancelText="Отмена"
-          footer={null}
-        >
-          <AddTaskModal addTask={addTask}></AddTaskModal>
-        </Modal>
-        <Content className="content">
-          <div>
-            {allTask.map((x) => (
-              <TaskItem
-                task={x}
-                deleteAction={() => deleteTask(x.id)}
-                updateAction={() => updateTask(x.id, x)}
-              ></TaskItem>
-            ))}
-          </div>
-        </Content>
+            <Content className="content">
+              <div>
+                {allTask.map((x) => (
+                  <TaskItem
+                    task={x}
+                    deleteAction={() => deleteTask(x.id)}
+                    updateAction={() => updateTask(x.id, x)}
+                  ></TaskItem>
+                ))}
+              </div>
+            </Content>
+          </>
+        ) : (
+          <Empty
+            className="empty"
+            image="https://avatanplus.com/files/resources/original/5745831bb158a154e788244e.png"
+            imageStyle={{ height: 300 }}
+            description={
+              <span style={{ fontSize: "20px" }}>
+                Войдите или зарегистрируйтесь!
+              </span>
+            }
+          ></Empty>
+        )}
       </Layout>
     </Layout>
   );
 };
 
 export default Todo;
-
-const TaskItem = ({ task, deleteAction, updateAction }) => {
-  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
-  const showUpdateModal = () => {
-    setIsUpdateModalOpen(true);
-  };
-  const handleUpdateCancel = () => {
-    setIsUpdateModalOpen(false);
-  };
-  const handleUpdateTask = (taskid, task) => {
-    updateAction(taskid, task);
-    setIsUpdateModalOpen(false);
-  };
-  const colorTask = getColorTask(task.priority);
-
-  const item = [
-    {
-      label: "Подробнее",
-      children: (
-        <div style={{ backgroundColor: colorTask[1], padding: "10px" }}>
-          <Card
-            className="task-description"
-            style={{
-              fontSize: "20px",
-              marginBottom: "20px",
-              marginTop: "20px",
-              backgroundColor: "white",
-            }}
-          >
-            {task.description}
-          </Card>
-          <Space
-            direction="vertical"
-            style={{
-              backgroundColor: "white",
-              borderRadius: "10px",
-              padding: "10px",
-            }}
-          >
-            <Space wrap>
-              <Meta
-                description={`Срок выполнения: до ${Moment(
-                  new Date(task.term)
-                ).format("D MMMM Y")}`}
-              ></Meta>
-              <Progress
-                type="circle"
-                percent={Math.ceil(calculatePercentage(new Date(task.term)))}
-                size={30}
-              />
-            </Space>
-            <Card
-              title="Приоритет"
-              size="small"
-              style={{ backgroundColor: colorTask[0] }}
-            >
-              {task.priority}
-            </Card>
-          </Space>
-        </div>
-      ),
-    },
-  ];
-
-  const [checked, setChecked] = useState(task.isDone);
-
-  const labelCheckBox = checked ? "Выполнено" : "В работе";
-
-  return (
-    <Card
-      title={
-        <Card
-          style={{
-            backgroundColor: colorTask[0],
-            margin: "10px",
-            marginRight: "10px",
-            borderColor: colorTask[2],
-            borderWidth: "2px",
-          }}
-        >
-          <h4 className="title-task" style={{ fontSize: "30px" }}>
-            {task.name}
-          </h4>
-        </Card>
-      }
-      style={{
-        margin: 20,
-        backgroundColor: colorTask[1],
-        borderColor: colorTask[2],
-        borderWidth: "3px",
-      }}
-      actions={[
-        <div>
-          <Tooltip title="Редактировать">
-            <Button
-              type="primary"
-              shape="circle"
-              icon={<EditOutlined />}
-              onClick={showUpdateModal}
-            ></Button>
-          </Tooltip>
-
-          <Modal
-            title="Редактирование задачи"
-            open={isUpdateModalOpen}
-            onCancel={handleUpdateCancel}
-            okText="Применить"
-            cancelText="Отмена"
-            footer={null}
-          >
-            <UpdateTaskModal
-              updateTask={() => handleUpdateTask(task.id, task)}
-              task={task}
-            ></UpdateTaskModal>
-          </Modal>
-        </div>,
-
-        <Tooltip title="Удалить">
-          <Button
-            type="primary"
-            shape="circle"
-            icon={<DeleteOutlined />}
-            onClick={() => deleteAction(task.id)}
-            danger
-          ></Button>
-        </Tooltip>,
-      ]}
-      extra={
-        <Checkbox
-          onChange={(e) => {
-            task.isDone = e.target.checked;
-            setChecked(task.isDone);
-            updateAction(task.id, task);
-          }}
-          checked={task.isDone}
-        >
-          {labelCheckBox}
-        </Checkbox>
-      }
-    >
-      <Collapse
-        items={item}
-        style={{
-          backgroundColor: "white",
-        }}
-        type="primary"
-      ></Collapse>
-    </Card>
-  );
-};
-
-function getColorTask(prior) {
-  if (prior === "Высокий") {
-    return ["#ff4d4f", "#ffccc7", "#f5222d"];
-  }
-  if (prior === "Средний") {
-    return ["#ffa940", "#ffe7ba", "#fa8c16"];
-  }
-  if (prior === "Низкий") {
-    return ["#bae637", "#f4ffb8", "#a0d911"];
-  }
-}
-
-function calculatePercentage(endDate) {
-  const today = new Date();
-
-  if (endDate < today) {
-    return 100;
-  }
-
-  const totalDays = (endDate - today) / (1000 * 60 * 60 * 24) + 1;
-
-  return 100 / totalDays;
-}
