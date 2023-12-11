@@ -60,7 +60,7 @@ const Todo = () => {
 
     return [];
   };
-  const deleteTask = (id) => {
+  const deleteTask = async (id) => {
     const headers = new Headers();
 
     headers.set("Authorization", "Bearer " + localStorage.getItem("token"));
@@ -68,8 +68,12 @@ const Todo = () => {
       method: "DELETE",
       headers: headers,
     };
-    fetch(url + `/${id}`, options);
+    const result = fetch(url + `/${id}`, options);
+
     setTask(allTask.filter((x) => x.id !== id));
+    if (result.ok) {
+      await getTasks();
+    }
   };
 
   const updateTask = async (id, oldTask) => {
@@ -83,8 +87,8 @@ const Todo = () => {
       body: JSON.stringify(oldTask),
     };
     await fetch(url + `/${id}`, options);
-    const updatedTask = allTask.findIndex((x) => x.id === oldTask.id);
-    allTask[updatedTask] = oldTask;
+    const index = allTask.findIndex((x) => x.id === id);
+    allTask[index] = oldTask;
     setTask(allTask.slice());
   };
 
