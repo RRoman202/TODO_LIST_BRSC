@@ -25,7 +25,6 @@ const UpdateTaskModal = ({ updateTask, task, taskCopy }) => {
     form.setFieldsValue({
       uname: taskCopy.name,
       udescription: taskCopy.description,
-      uterm: dayjs(taskCopy.term, dateFormat),
       upriority: taskCopy.priority,
     });
     task.name = taskCopy.name;

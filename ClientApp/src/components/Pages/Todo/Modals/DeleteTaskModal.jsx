@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Modal, Button, Tooltip } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 
-const DeleteModal = ({ deleteTask, task, setIsTaskDeleted }) => {
+const DeleteModal = ({ deleteTask, task }) => {
   const [isAuthModal, setAuthModal] = useState(false);
 
   const showAuthModal = () => {
@@ -38,7 +38,6 @@ const DeleteModal = ({ deleteTask, task, setIsTaskDeleted }) => {
           onClick={() => {
             setAuthModal(false);
             deleteTask(task.id);
-            setIsTaskDeleted(true);
           }}
         >
           Удалить

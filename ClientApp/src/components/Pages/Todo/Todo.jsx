@@ -69,7 +69,6 @@ const Todo = () => {
       headers: headers,
     };
     await fetch(url + `/${id}`, options);
-    console.log(id);
     setTask(allTask.filter((x) => x.id !== id));
   };
 
@@ -84,9 +83,7 @@ const Todo = () => {
       body: JSON.stringify(oldTask),
     };
     await fetch(url + `/${id}`, options);
-    console.log(id);
     const index = allTask.findIndex((x) => x.id === id);
-    console.log(index);
     allTask[index] = oldTask;
     setTask(allTask.slice());
   };
