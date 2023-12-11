@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "moment/locale/ru";
-import { Layout, Empty } from "antd";
+import { Layout, Empty, Spin } from "antd";
 import "../Todo/static/css/Todo.css";
 import NavBar from "../../NavBar/Navbar";
 import AddTaskModal from "./Modals/AddTaskModal";
@@ -14,12 +14,15 @@ const { Content } = Layout;
 const Todo = () => {
   const [allTask, setTask] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [spinning, setSpinning] = React.useState(false);
 
   const url = `/api/tasks`;
 
   const getTasksAll = async () => {
+    setSpinning(true);
     const posts = await getTasks();
     setTask(posts);
+    setSpinning(false);
     return posts;
   };
   const addTask = async () => {
@@ -100,6 +103,7 @@ const Todo = () => {
   return (
     <Layout>
       <Layout className="site-layout">
+        <Spin spinning={spinning} fullscreen />
         <NavBar setIsLoggedIn={setIsLoggedIn} isLoggedIn={isLoggedIn}></NavBar>
         {isLoggedIn ? (
           <>

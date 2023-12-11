@@ -33,7 +33,7 @@ const TaskItem = ({ task, deleteAction, updateAction }) => {
           {task.name}
         </h4>
         <Space wrap>
-          <Card size="small">
+          <Card size="small" style={{ width: "220px" }}>
             <Space wrap>
               <Progress
                 type="circle"
@@ -49,6 +49,7 @@ const TaskItem = ({ task, deleteAction, updateAction }) => {
           </Card>
           <Card
             size="small"
+            style={{ width: "150px" }}
             title={
               <Checkbox
                 onChange={(e) => {

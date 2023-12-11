@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { Modal, Button, Space } from "antd";
+import { Modal, Button, Space, Spin } from "antd";
 import { Form, Input } from "antd";
 
 const RegisterModal = ({ isVisible, onCancel }) => {
   const url = `/api/users/register`;
+  const [spinning, setSpinning] = React.useState(false);
 
   const addUser = async () => {
+    setSpinning(true);
     const nameUser = document.querySelector("#regname").value;
     const passwordUser = document.querySelector("#regpassword").value;
 
@@ -27,6 +29,7 @@ const RegisterModal = ({ isVisible, onCancel }) => {
     if (result.ok) {
       setAuthModal(false);
     }
+    setSpinning(false);
   };
 
   const [isAuthModal, setAuthModal] = useState(isVisible);
@@ -105,6 +108,7 @@ const RegisterModal = ({ isVisible, onCancel }) => {
                 <Button type="primary" htmlType="submit">
                   Зарегистрироваться
                 </Button>
+                <Spin spinning={spinning} />
               </Space>
             </Form.Item>
           </Form>
