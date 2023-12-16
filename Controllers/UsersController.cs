@@ -35,11 +35,20 @@ namespace todolist_api.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<UserModel>> Registration(UserModel userModel)
         {
-            userModel.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userModel.PasswordHash);
-            _context.Users.Add(userModel);
-            await _context.SaveChangesAsync();
+            var username = await (from u in _context.Users where u.Username == userModel.Username select u).FirstOrDefaultAsync();
+            if (username != null)
+            {
+                return BadRequest("Пользователь с таким логином уже существует!");
+            }
+            else
+            {
+                userModel.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userModel.PasswordHash);
+                _context.Users.Add(userModel);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUserModel", new { id = userModel.Id }, userModel);
+                return CreatedAtAction("GetUserModel", new { id = userModel.Id }, userModel);
+            }
+            
         }
 
         [AllowAnonymous]

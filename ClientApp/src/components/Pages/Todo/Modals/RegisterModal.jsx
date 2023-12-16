@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Modal, Button, Space, Spin } from "antd";
+import { Modal, Button, Space, Spin, message } from "antd";
 import { Form, Input } from "antd";
 
 const RegisterModal = ({ isVisible, onCancel }) => {
@@ -28,6 +28,9 @@ const RegisterModal = ({ isVisible, onCancel }) => {
 
     if (result.ok) {
       setAuthModal(false);
+    } else {
+      const errorResponse = await result.text();
+      error(errorResponse);
     }
     setSpinning(false);
   };
@@ -41,9 +44,18 @@ const RegisterModal = ({ isVisible, onCancel }) => {
   const handleCancel = () => {
     setAuthModal(false);
   };
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const error = (error_text) => {
+    messageApi.open({
+      type: "error",
+      content: error_text,
+    });
+  };
 
   return (
     <>
+      {contextHolder}
       <Button onClick={showAuthModal}>Зарегистрироваться</Button>
       <Modal
         title="Регистрация"
