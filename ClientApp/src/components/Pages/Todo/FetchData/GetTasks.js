@@ -15,7 +15,7 @@ export const getTasks = async () => {
       .filter(
         (post) => post.userId === parseInt(localStorage.getItem("userid"))
       )
-      .sort((a, b) => (a.id > b.id ? 1 : -1));
+      .sort((a, b) => (a.id > b.id ? -1 : 1));
   }
   return [];
 };

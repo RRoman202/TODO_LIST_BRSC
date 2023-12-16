@@ -11,6 +11,7 @@ import {
 } from "antd";
 import { optionsPriority } from "../Helpers/OptionsPriority";
 import dayjs from "dayjs";
+import { disabledDate } from "../Helpers/DateDelete";
 
 const { TextArea } = Input;
 
@@ -131,6 +132,7 @@ const UpdateTaskModal = ({ updateTask, task, taskCopy }) => {
             <DatePicker
               id="uterm"
               placeholder="Выберите срок"
+              disabledDate={disabledDate}
               onChange={(e) => {
                 task.term = new Date(e);
               }}

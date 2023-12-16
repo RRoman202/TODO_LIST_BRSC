@@ -56,6 +56,8 @@ const Todo = () => {
       const post = await result.json();
       allTask.push(post);
       setTask(allTask);
+      const posts = await getTasks();
+      setTask(posts);
     }
 
     return [];

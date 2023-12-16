@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button, Form, Input, DatePicker, Cascader, Modal } from "antd";
 import { optionsPriority } from "../Helpers/OptionsPriority";
 import { getTasks } from "../FetchData/GetTasks";
+import { disabledDate } from "../Helpers/DateDelete";
 const { TextArea } = Input;
 
 const AddTaskModal = ({ addTask, setTask }) => {
@@ -93,7 +94,11 @@ const AddTaskModal = ({ addTask, setTask }) => {
                 },
               ]}
             >
-              <DatePicker id="term" placeholder="Выберите срок"></DatePicker>
+              <DatePicker
+                disabledDate={disabledDate}
+                id="term"
+                placeholder="Выберите срок"
+              ></DatePicker>
             </Form.Item>
             <Form.Item
               label="Приоритет"
